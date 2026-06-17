@@ -1,1 +1,1 @@
-"""LangChain tools for web research (search, fetch, summarize)."""
+"""LangChain tools for web research and local document retrieval."""

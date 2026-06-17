@@ -10,6 +10,8 @@ PREVIEW_CHARS = 200
 SKIP_FETCH_HOSTS = ("youtube.com", "youtu.be", "twitter.com", "x.com")
 SEARCH_QUERY = "LangGraph agent tutorial"
 SEARCH_K = 3
+LOCAL_DOCS_QUERY = "IAM access key rotation"
+LOCAL_DOCS_K = 3
 SUMMARIZE_FOCUS = "state"
 FALLBACK_FETCH_URL = (
     "https://www.freecodecamp.org/news/how-to-develop-ai-agents-using-langgraph-a-practical-guide"
@@ -30,7 +32,11 @@ def smoke_setup() -> None:
     from dotenv import load_dotenv
 
     from app._env import sync_langsmith_env
-    from app.tracing import disable_langsmith_tracing, enable_langsmith_tracing, ensure_langsmith_tracing
+    from app.tracing import (
+        disable_langsmith_tracing,
+        enable_langsmith_tracing,
+        ensure_langsmith_tracing,
+    )
 
     root = Path(__file__).resolve().parents[2]
     env_file = root / ".env"

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from app.tools._smoke_common import (
     FALLBACK_FETCH_URL,
+    LOCAL_DOCS_K,
+    LOCAL_DOCS_QUERY,
     SEARCH_K,
     SEARCH_QUERY,
     SUMMARIZE_FOCUS,
@@ -12,6 +14,7 @@ from app.tools._smoke_common import (
     smoke_setup,
 )
 from app.tools.fetch_url import fetch_url
+from app.tools.search_local_docs import search_local_docs
 from app.tools.summarize import summarize
 from app.tools.web_search import web_search
 
@@ -50,9 +53,30 @@ def demo_summarize(text: str | None = None, focus: str = SUMMARIZE_FOCUS) -> str
     return summary
 
 
+def demo_search_local_docs() -> list[dict]:
+    print("=== search_local_docs ===")
+    try:
+        results = search_local_docs.invoke(
+            {"query": LOCAL_DOCS_QUERY, "k": LOCAL_DOCS_K, "table": "docs"}
+        )
+        print(f"Got {len(results)} hit(s) for {LOCAL_DOCS_QUERY!r}:")
+        for i, hit in enumerate(results, start=1):
+            print(f"\n  [{i}] score={hit['score']:.3f}  {hit['source_url']}")
+            print(f"      {preview(hit['text'])}")
+        return results
+    except Exception as exc:
+        print(f"ERR: {type(exc).__name__}: {exc}")
+        print(
+            "hint: start Postgres with `docker compose up -d postgres`, "
+            "then ingest: `make ingest CORPUS=aws-docs`"
+        )
+        return []
+
+
 def demo_all() -> None:
     smoke_setup()
     results = demo_web_search()
     page = demo_fetch_url(results)
     demo_summarize(page)
+    demo_search_local_docs()
     print("\nAll tool smoke checks passed.")

@@ -1,6 +1,6 @@
 .PHONY: help install smoke ingest dev eval lint format clean \
         setup-aws setup-gcp deploy-cloudrun deploy-agentcore deploy-vertex \
-        tools tools-trace tracing-check
+        tools tools-trace tracing-check search-local-docs
 
 help:  ## Show this help
 	@awk 'BEGIN {FS = ":.*##"; printf "Targets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
@@ -11,11 +11,14 @@ install:  ## Install dependencies via uv
 smoke:  ## Run the smoke test against Bedrock + Vertex
 	uv run python -m app.smoke
 
-tools:  ## Run Project 1 tool smoke test (search -> fetch -> summarize)
+tools:  ## Run Project 1 tool smoke test (web + local docs + fetch + summarize)
 	uv run python -m app.tools
 
 tools-trace:  ## Same as tools, but send runs to LangSmith (MONK_TRACE_SMOKE=1)
 	MONK_TRACE_SMOKE=1 uv run python -m app.tools
+
+search-local-docs:  ## Smoke test pgvector retrieval (requires postgres + ingest)
+	uv run python -m app.tools.search_local_docs
 
 tracing-check:  ## Verify LangSmith API key and endpoint
 	uv run python -m app.tracing_check
