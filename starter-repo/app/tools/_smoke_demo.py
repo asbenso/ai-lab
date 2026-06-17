@@ -12,6 +12,7 @@ from app.tools._smoke_common import (
     pick_fetchable_url,
     preview,
     smoke_setup,
+    smoke_teardown,
 )
 from app.tools.fetch_url import fetch_url
 from app.tools.search_local_docs import search_local_docs
@@ -19,7 +20,9 @@ from app.tools.summarize import summarize
 from app.tools.web_search import web_search
 
 
-def demo_web_search() -> list[dict]:
+def demo_web_search(*, setup: bool = True, teardown: bool = True) -> list[dict]:
+    if setup:
+        smoke_setup()
     print("=== web_search ===")
     results = web_search.invoke({"query": SEARCH_QUERY, "k": SEARCH_K})
     print(f"Got {len(results)} result(s) for {SEARCH_QUERY!r}:")
@@ -27,10 +30,16 @@ def demo_web_search() -> list[dict]:
         print(f"\n  [{i}] {hit['title']}")
         print(f"      url:     {hit['url']}")
         print(f"      snippet: {preview(hit['content'])}")
+    if teardown:
+        smoke_teardown()
     return results
 
 
-def demo_fetch_url(results: list[dict] | None = None) -> str:
+def demo_fetch_url(
+    results: list[dict] | None = None, *, setup: bool = True, teardown: bool = True
+) -> str:
+    if setup:
+        smoke_setup()
     print("=== fetch_url ===")
     if results is None:
         results = web_search.invoke({"query": SEARCH_QUERY, "k": SEARCH_K})
@@ -40,20 +49,34 @@ def demo_fetch_url(results: list[dict] | None = None) -> str:
     body = page.split("\n", 1)[1] if "\n" in page else page
     print(preview(body))
     print(f"({len(page)} chars total)")
+    if teardown:
+        smoke_teardown()
     return page
 
 
-def demo_summarize(text: str | None = None, focus: str = SUMMARIZE_FOCUS) -> str:
+def demo_summarize(
+    text: str | None = None,
+    focus: str = SUMMARIZE_FOCUS,
+    *,
+    setup: bool = True,
+    teardown: bool = True,
+) -> str:
     if text is None:
-        text = demo_fetch_url()
+        text = demo_fetch_url(setup=setup, teardown=False)
+    elif setup:
+        smoke_setup()
     print("=== summarize ===")
     print(f"Focus: {focus!r}")
     summary = summarize.invoke({"text": text, "focus": focus})
     print(summary)
+    if teardown:
+        smoke_teardown()
     return summary
 
 
-def demo_search_local_docs() -> list[dict]:
+def demo_search_local_docs(*, setup: bool = True, teardown: bool = True) -> list[dict]:
+    if setup:
+        smoke_setup()
     print("=== search_local_docs ===")
     try:
         results = search_local_docs.invoke(
@@ -70,13 +93,20 @@ def demo_search_local_docs() -> list[dict]:
             "hint: start Postgres with `docker compose up -d postgres`, "
             "then ingest: `make ingest CORPUS=aws-docs`"
         )
+        if teardown:
+            smoke_teardown()
         return []
+
+    if teardown:
+        smoke_teardown()
+    return results
 
 
 def demo_all() -> None:
     smoke_setup()
-    results = demo_web_search()
-    page = demo_fetch_url(results)
-    demo_summarize(page)
-    demo_search_local_docs()
+    results = demo_web_search(setup=False, teardown=False)
+    page = demo_fetch_url(results, setup=False, teardown=False)
+    demo_summarize(page, setup=False, teardown=False)
+    demo_search_local_docs(setup=False, teardown=False)
+    smoke_teardown()
     print("\nAll tool smoke checks passed.")

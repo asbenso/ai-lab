@@ -11,7 +11,7 @@ make tools             # web_search -> fetch_url -> summarize
 make tracing-check     # verify LangSmith
 ```
 
-Or `cd starter-repo && uv sync && make tools`. Copy `starter-repo/.env.example` to `starter-repo/.env` and fill in keys.
+Or `cd starter-repo && uv sync && make tools`. Configure API keys in `starter-repo/.env` (gitignored).
 
 ## How to use
 

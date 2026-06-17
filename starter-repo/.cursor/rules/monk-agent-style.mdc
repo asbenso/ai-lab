@@ -38,7 +38,7 @@ Every Monk Technologies agent project follows this layout:
 ├── scripts/
 ├── Dockerfile
 ├── pyproject.toml
-├── .env.example
+├── .env
 └── README.md
 ```
 
@@ -83,7 +83,7 @@ Every Monk Technologies agent project follows this layout:
 - Do not write Terraform, Helm, or Kubernetes manifests. Cloud is via console + provided scripts.
 - Do not hardcode model names other than as the default value of a `os.getenv` call.
 - Do not hardcode secrets. Always read from env or from a secret manager.
-- Do not commit `.env` (only `.env.example`).
+- Do not commit `.env` (it is gitignored).
 - Do not invent libraries. If unsure, ask the instructor or read the existing imports.
 
 ## Reading material for the agent generating this code

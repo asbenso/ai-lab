@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 
 from langchain_core.tools import tool
+from langsmith import traceable
 from tavily import TavilyClient
 
 MOCK_RESULT = {"title": "mock", "url": "https://example.com", "content": ""}
@@ -27,18 +28,21 @@ def _tavily_results(query: str, k: int) -> list[dict]:
     ]
 
 
-@tool
-def web_search(query: str, k: int = 5) -> list[dict]:
-    """Search the public web for pages relevant to a query and return title, URL, and snippet for each hit. Use this when you need fresh external sources before fetching or summarizing pages."""
+@traceable(run_type="tool", name="web_search")
+def _run_web_search(query: str, k: int = 5) -> list[dict]:
     api_key = os.getenv("TAVILY_API_KEY")
     if not api_key:
         return _mock_results(query)
     return _tavily_results(query, k)
 
 
+@tool
+def web_search(query: str, k: int = 5) -> list[dict]:
+    """Search the public web for pages relevant to a query and return title, URL, and snippet for each hit. Use this when you need fresh external sources before fetching or summarizing pages."""
+    return _run_web_search(query, k)
+
+
 if __name__ == "__main__":
-    from app.tools._smoke_common import smoke_setup
     from app.tools._smoke_demo import demo_web_search
 
-    smoke_setup()
     demo_web_search()

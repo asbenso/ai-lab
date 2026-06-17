@@ -6,6 +6,7 @@ import os
 
 import psycopg
 from langchain_core.tools import tool
+from langsmith import traceable
 
 from app.llm import get_embeddings
 from ingest.upsert import _sanitize_table
@@ -45,16 +46,19 @@ def _search_rows(query: str, k: int, table: str, dsn: str) -> list[dict]:
     ]
 
 
-@tool
-def search_local_docs(query: str, k: int = 5, table: str = "docs") -> list[dict]:
-    """Search the ingested document corpus for content relevant to a query. Use this when the user asks about content in our internal documentation. Returns a list of citations each with a real source_url that you MUST cite back."""
+@traceable(run_type="tool", name="search_local_docs")
+def _run_search_local_docs(query: str, k: int = 5, table: str = "docs") -> list[dict]:
     dsn = os.getenv("POSTGRES_DSN", DEFAULT_DSN)
     return _search_rows(query, k, table, dsn)
 
 
+@tool
+def search_local_docs(query: str, k: int = 5, table: str = "docs") -> list[dict]:
+    """Search the ingested document corpus for content relevant to a query. Use this when the user asks about content in our internal documentation. Returns a list of citations each with a real source_url that you MUST cite back."""
+    return _run_search_local_docs(query, k, table)
+
+
 if __name__ == "__main__":
-    from app.tools._smoke_common import smoke_setup
     from app.tools._smoke_demo import demo_search_local_docs
 
-    smoke_setup()
     demo_search_local_docs()

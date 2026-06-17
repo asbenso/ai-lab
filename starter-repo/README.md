@@ -6,7 +6,7 @@ This is the starter repo for the **Monk Technologies Agentic AI Bootcamp**. By t
 
 - `pyproject.toml` - pinned Python dependencies.
 - `docker-compose.yml` - a local pgvector database.
-- `.env.example` - all the environment variables you need.
+- `.env` - your local secrets (gitignored; create and fill in before Day 1).
 - `scripts/setup_aws.sh`, `scripts/setup_gcp.sh` - guided cloud setup (run once).
 - `scripts/deploy_cloudrun.sh`, `scripts/deploy_agentcore.sh`, `scripts/deploy_vertex_engine.sh` - one-command deploys.
 - `app/smoke.py` - the Day-0 smoke test you ran in pre-work.
@@ -83,5 +83,5 @@ make deploy-vertex   # deploy Project 2 to Vertex AI Agent Engine
 ├── Dockerfile
 ├── Makefile
 ├── pyproject.toml
-└── .env.example
+└── .env
 ```

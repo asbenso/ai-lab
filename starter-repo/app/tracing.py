@@ -45,6 +45,26 @@ def tracing_enabled() -> bool:
     return _is_truthy(os.getenv("LANGSMITH_TRACING")) or _is_truthy(os.getenv("LANGCHAIN_TRACING_V2"))
 
 
+def flush_langsmith_traces(*, timeout: float = 10.0) -> None:
+    """Push buffered LangSmith runs before a short-lived CLI process exits."""
+    if not tracing_enabled():
+        return
+    try:
+        from langsmith import Client
+
+        Client().flush(timeout=timeout)
+    except Exception:
+        pass
+
+
+def langsmith_ui_hint() -> str:
+    """Human-readable pointer to the project where tool runs land."""
+    project = _langsmith_project()
+    endpoint = _langsmith_api_url()
+    host = "smith.langchain.com" if "eu.api" not in endpoint else "eu.smith.langchain.com"
+    return f"View traces at https://{host} → project {project!r} (filter: run type Tool)"
+
+
 def _quiet_langsmith_logs() -> None:
     for name in ("langsmith", "langsmith.client"):
         logging.getLogger(name).setLevel(logging.CRITICAL)

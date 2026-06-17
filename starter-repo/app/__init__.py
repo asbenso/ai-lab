@@ -13,13 +13,15 @@ try:
     from dotenv import load_dotenv
 
     from app._env import sync_langsmith_env
-    from app.tracing import ensure_langsmith_tracing
+    from app.tracing import enable_langsmith_tracing, ensure_langsmith_tracing, tracing_enabled
 
     _project_root = Path(__file__).resolve().parent.parent
     _env = _project_root / ".env"
     if _env.exists():
         load_dotenv(_env, override=True)
     sync_langsmith_env()
+    if tracing_enabled():
+        enable_langsmith_tracing()
     ensure_langsmith_tracing()
 except Exception:
     pass

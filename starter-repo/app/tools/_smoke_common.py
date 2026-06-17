@@ -22,10 +22,15 @@ def _trace_smoke_enabled() -> bool:
     return (os.getenv("MONK_TRACE_SMOKE") or "").strip().lower() in _TRUTHY
 
 
-def smoke_setup() -> None:
-    """Load `.env`; disable LangSmith by default for CLI smoke tests.
+def _no_trace_enabled() -> bool:
+    return (os.getenv("MONK_NO_TRACE") or "").strip().lower() in _TRUTHY
 
-    Set ``MONK_TRACE_SMOKE=1`` to keep tracing on (e.g. ``MONK_TRACE_SMOKE=1 uv run python -m app.tools``).
+
+def smoke_setup() -> None:
+    """Load `.env` and configure LangSmith for CLI smoke tests.
+
+    Tracing stays ON when ``LANGSMITH_TRACING=true`` in ``.env`` (default for this repo).
+    Set ``MONK_NO_TRACE=1`` to suppress traces; ``MONK_TRACE_SMOKE=1`` forces tracing on.
     """
     from pathlib import Path
 
@@ -36,6 +41,7 @@ def smoke_setup() -> None:
         disable_langsmith_tracing,
         enable_langsmith_tracing,
         ensure_langsmith_tracing,
+        tracing_enabled,
     )
 
     root = Path(__file__).resolve().parents[2]
@@ -45,17 +51,34 @@ def smoke_setup() -> None:
     else:
         load_dotenv(override=True)
     sync_langsmith_env()
-    if _trace_smoke_enabled():
+
+    if _no_trace_enabled():
+        disable_langsmith_tracing(silent=True)
+        print("LangSmith tracing OFF (MONK_NO_TRACE=1)")
+        return
+
+    if _trace_smoke_enabled() or tracing_enabled():
         enable_langsmith_tracing()
-        if ensure_langsmith_tracing(verbose=True):
+        if ensure_langsmith_tracing(verbose=False):
             project = os.getenv("LANGSMITH_PROJECT") or os.getenv("LANGCHAIN_PROJECT") or "default"
             endpoint = os.getenv("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com")
-            print(f"LangSmith tracing ON for smoke run (project={project!r}, {endpoint})")
+            print(f"LangSmith tracing ON (project={project!r}, {endpoint})")
         else:
-            print("LangSmith tracing requested (MONK_TRACE_SMOKE=1) but probe failed; runs will not appear.")
+            print("LangSmith tracing OFF (API probe failed — run: uv run python -m app.tracing_check)")
+            disable_langsmith_tracing(silent=True)
         return
-    # .env sets LANGSMITH_TRACING=true; smoke tests must not send traces by default.
+
     disable_langsmith_tracing(silent=True)
+    print("LangSmith tracing OFF (set LANGSMITH_TRACING=true in .env to trace tool runs)")
+
+
+def smoke_teardown() -> None:
+    """Flush buffered LangSmith runs before the CLI exits."""
+    from app.tracing import flush_langsmith_traces, langsmith_ui_hint, tracing_enabled
+
+    flush_langsmith_traces()
+    if tracing_enabled():
+        print(langsmith_ui_hint())
 
 
 def preview(text: str, max_chars: int = PREVIEW_CHARS) -> str:
