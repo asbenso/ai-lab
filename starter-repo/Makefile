@@ -1,6 +1,6 @@
 .PHONY: help install smoke ingest dev eval lint format clean \
         setup-aws setup-gcp deploy-cloudrun deploy-agentcore deploy-vertex \
-        tools tools-trace tracing-check search-local-docs
+        tools tools-trace tracing-check search-local-docs web-search fetch-url summarize
 
 help:  ## Show this help
 	@awk 'BEGIN {FS = ":.*##"; printf "Targets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
@@ -10,6 +10,15 @@ install:  ## Install dependencies via uv
 
 smoke:  ## Run the smoke test against Bedrock + Vertex
 	uv run python -m app.smoke
+
+web-search:  ## Smoke test web_search tool
+	uv run python -m app.tools.web_search
+
+fetch-url:  ## Smoke test fetch_url tool
+	uv run python -m app.tools.fetch_url
+
+summarize:  ## Smoke test summarize tool
+	uv run python -m app.tools.summarize
 
 tools:  ## Run Project 1 tool smoke test (web + local docs + fetch + summarize)
 	uv run python -m app.tools

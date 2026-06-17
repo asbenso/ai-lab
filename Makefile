@@ -1,7 +1,8 @@
 # Git root wrapper — Python project lives in starter-repo/
 PROJECT := starter-repo
 
-.PHONY: help install smoke tools tools-trace tracing-check search-local-docs
+.PHONY: help install smoke tools tools-trace tracing-check search-local-docs \
+        web-search fetch-url summarize
 
 help:  ## Show available targets (runs inside $(PROJECT)/)
 	@$(MAKE) -C $(PROJECT) help
@@ -11,6 +12,15 @@ install:  ## Install dependencies via uv
 
 smoke:  ## Run Bedrock + Vertex + Postgres smoke test
 	@$(MAKE) -C $(PROJECT) smoke
+
+web-search:  ## Smoke test web_search tool
+	@$(MAKE) -C $(PROJECT) web-search
+
+fetch-url:  ## Smoke test fetch_url tool
+	@$(MAKE) -C $(PROJECT) fetch-url
+
+summarize:  ## Smoke test summarize tool
+	@$(MAKE) -C $(PROJECT) summarize
 
 tools:  ## Run Project 1 tool smoke test (search -> fetch -> summarize)
 	@$(MAKE) -C $(PROJECT) tools
