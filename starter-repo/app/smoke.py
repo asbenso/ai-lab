@@ -26,9 +26,9 @@ DEFAULT_POSTGRES_DSN = "postgresql://postgres:postgres@localhost:5433/monk"
 def _disable_langsmith() -> None:
     """LangSmith tracing has nothing to add to a smoke test and a bad/missing key
     floods stderr with 403s that hide the real errors. Off for this script."""
-    for var in ("LANGSMITH_TRACING", "LANGCHAIN_TRACING_V2", "LANGSMITH_API_KEY", "LANGCHAIN_API_KEY"):
-        os.environ.pop(var, None)
-    os.environ["LANGSMITH_TRACING"] = "false"
+    from app.tracing import disable_langsmith_tracing
+
+    disable_langsmith_tracing()
 
 
 def check_bedrock() -> bool:
