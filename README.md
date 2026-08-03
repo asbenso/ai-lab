@@ -1,6 +1,6 @@
 # AiProjects
 
-Git root for the Agentic AI Bootcamp. All projects, prompts, and tooling live in **`AgenticAi/`**.
+Git root for the Agentic AI project. All projects, prompts, and tooling live in **`AgenticAi/`**.
 
 ```bash
 cd AgenticAi
