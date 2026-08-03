@@ -1,6 +1,6 @@
-# Agentic AI Bootcamp — AiProjects
+# Agentic AI project — AiProjects
 
-This folder contains both bootcamp projects, prompt libraries, and shared tooling.
+This folder contains both projects, prompt libraries, and shared tooling.
 
 ## Projects
 

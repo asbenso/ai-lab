@@ -4,7 +4,7 @@ When `MONK_MODEL=fake` (and/or `MONK_EMBEDDINGS=fake`), the project routes
 through this module instead of Bedrock/Vertex. The point is to let the entire
 graph - planner / researcher / writer, plus tools, guardrails, evals and the
 HTMX UI - run end-to-end with zero cloud credentials, so we can dry-run the
-bootcamp offline. Real cloud models go through the normal `init_chat_model`
+project offline. Real cloud models go through the normal `init_chat_model`
 path in `app/llm.py`.
 
 The fake model recognises a small number of "shapes" from the prompts in this

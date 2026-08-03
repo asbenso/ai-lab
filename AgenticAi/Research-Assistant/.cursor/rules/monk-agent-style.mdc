@@ -1,11 +1,11 @@
 ---
-description: Monk Technologies house style for all agentic AI bootcamp projects. Always apply.
+description: Monk Technologies house style for all agentic AI projects. Always apply.
 alwaysApply: true
 ---
 
 # Monk Technologies - Agent code style
 
-This rule defines the coding conventions for all bootcamp projects (`monk-research-assistant`, `monk-ticket-triage`, and any side labs). It is always in effect.
+This rule defines the coding conventions for all projects (`monk-research-assistant`, `monk-ticket-triage`, and any side labs). It is always in effect.
 
 ## Stack defaults
 

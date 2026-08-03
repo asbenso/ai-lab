@@ -127,7 +127,7 @@ Prerequisite — create the standard `monk-research-guardrail` first (AWS consol
 aws bedrock create-guardrail \
   --region us-east-1 \
   --name "monk-research-guardrail" \
-  --description "Monk bootcamp standard guardrail for Project 1" \
+  --description "Monk project standard guardrail for Project 1" \
   --blocked-input-messaging "Sorry — the Monk Research Assistant only handles business and technology research, not cooking questions." \
   --blocked-outputs-messaging "Sorry — the Monk Research Assistant only handles business and technology research, not cooking questions." \
   --topic-policy-config '{"topicsConfig":[{"name":"Cooking and Recipes","definition":"Any request for cooking recipes, ingredients, or step-by-step food preparation instructions.","examples":["give me a recipe for","how do I cook","ingredients for"],"type":"DENY"}]}' \

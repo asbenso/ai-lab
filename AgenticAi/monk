@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run Monk bootcamp commands from the AgenticAi directory.
+# Run Monk project commands from the AgenticAi directory.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT="$ROOT/Research-Assistant"

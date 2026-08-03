@@ -129,7 +129,7 @@ def check_postgres() -> bool:
         if 'role "postgres" does not exist' in msg or "password authentication failed" in msg:
             console.print(
                 "  hint: you have a [yellow]host Postgres[/] already running on this port. "
-                "The bootcamp Postgres now listens on [yellow]5433[/] to avoid that clash. "
+                "The project Postgres now listens on [yellow]5433[/] to avoid that clash. "
                 "Reset POSTGRES_DSN in your .env to "
                 "[cyan]postgresql://postgres:postgres@localhost:5433/monk[/], then "
                 "[yellow]docker compose up -d postgres[/]."

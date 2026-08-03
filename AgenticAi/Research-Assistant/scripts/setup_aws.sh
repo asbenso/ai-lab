@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monk Technologies - guided AWS setup for the bootcamp.
+# Monk Technologies - guided AWS setup for the project.
 # Run once before Day 1. Re-running is safe.
 
 set -euo pipefail
@@ -25,7 +25,7 @@ echo
 bold "2. AWS credentials"
 if ! aws sts get-caller-identity >/dev/null 2>&1; then
     err "AWS credentials not configured. Run: aws configure"
-    err "You need an Access Key ID and Secret. Region: us-east-1 is fine for the bootcamp."
+    err "You need an Access Key ID and Secret. Region: us-east-1 is fine for the project."
     exit 1
 fi
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
@@ -49,7 +49,7 @@ echo
 
 # 4. Bedrock model access
 bold "4. Bedrock model access"
-echo "  Probing the models we use in the bootcamp..."
+echo "  Probing the models we use in the project..."
 
 # Chat model probe uses the Converse API.
 check_chat_model() {

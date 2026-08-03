@@ -1,7 +1,7 @@
 [project]
-name = "monk-bootcamp-starter"
+name = "monk-project-starter"
 version = "0.1.0"
-description = "Monk Technologies Agentic AI Bootcamp starter repo"
+description = "Monk Technologies Agentic AI project starter repo"
 requires-python = ">=3.11,<3.13"
 
 dependencies = [

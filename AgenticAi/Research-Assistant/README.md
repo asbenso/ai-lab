@@ -1,6 +1,6 @@
-# Monk Bootcamp Starter Repo
+# Monk project Starter Repo
 
-This is the starter repo for the **Monk Technologies Agentic AI Bootcamp**. By the end of the bootcamp, this folder will contain two production-grade AI agents (Research Assistant + Ticket Triage Agent) running on AWS Bedrock (OpenAI's open-weight `gpt-oss-120b`) and Google Cloud Vertex AI (Gemini), deployed to Cloud Run and AgentCore / Agent Engine.
+This is the starter repo for the **Monk Technologies Agentic AI project**. By the end of the project, this folder will contain two production-grade AI agents (Research Assistant + Ticket Triage Agent) running on AWS Bedrock (OpenAI's open-weight `gpt-oss-120b`) and Google Cloud Vertex AI (Gemini), deployed to Cloud Run and AgentCore / Agent Engine.
 
 ## What's already in here
 
@@ -14,7 +14,7 @@ This is the starter repo for the **Monk Technologies Agentic AI Bootcamp**. By t
 - `data/` - sample doc corpora and ticket datasets for the projects.
 - `.cursor/rules/` - house style + project-specific rules. Cursor reads these automatically.
 
-## What you'll add during the bootcamp
+## What you'll add during the project
 
 - `app/hello_agent.py` (Day 1)
 - `app/tools/` (Day 2)
