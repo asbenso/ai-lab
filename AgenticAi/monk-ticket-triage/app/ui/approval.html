@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monk Ticket Approval</title>
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1a1a1a; background: #f5f6f8; }
+    body { margin: 0; padding: 1.5rem; }
+    h1 { margin-top: 0; }
+    .meta { color: #555; margin-bottom: 1rem; }
+    #pending-container { display: grid; gap: 1rem; }
+    .card {
+      background: #fff; border: 1px solid #ddd; border-radius: 8px;
+      padding: 1rem 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .card h2 { margin: 0 0 .5rem; font-size: 1.1rem; }
+    .badge { display: inline-block; background: #eef2ff; color: #3730a3; padding: .15rem .5rem; border-radius: 999px; font-size: .85rem; margin-right: .35rem; }
+    .findings { margin: .75rem 0; padding-left: 1.2rem; }
+    textarea { width: 100%; min-height: 180px; font: inherit; padding: .75rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    .actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .75rem; }
+    button { cursor: pointer; border: none; border-radius: 6px; padding: .55rem .9rem; font: inherit; }
+    .approve { background: #15803d; color: #fff; }
+    .edit { background: #1d4ed8; color: #fff; }
+    .reject { background: #b91c1c; color: #fff; }
+    .empty { color: #666; font-style: italic; }
+    .error { color: #b91c1c; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    .status { color: #555; font-size: 0.9rem; margin-top: 0.35rem; }
+  </style>
+</head>
+<body>
+  <h1>Pending ticket approvals</h1>
+  <p class="meta">Polling <code>/pending</code> every 5 seconds.</p>
+  <div id="pending-container" hx-trigger="load, every 5s" hx-get="/pending" hx-swap="none">
+    <p class="empty">Loading pending drafts…</p>
+  </div>
+
+  <script>
+    const inFlight = new Set();
+
+    function escapeHtml(text) {
+      return String(text ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function renderPending(items) {
+      const container = document.getElementById("pending-container");
+      if (!items.length) {
+        container.innerHTML = '<p class="empty">No drafts awaiting approval.</p>';
+        return;
+      }
+      container.innerHTML = items.map(item => {
+        const p = item.payload || {};
+        const draft = p.draft || {};
+        const raw = p.raw || {};
+        const classification = p.classification || {};
+        const findings = p.findings || [];
+        const subject = draft.subject || raw.subject || "(no subject)";
+        const category = classification.category || "unknown";
+        const severity = p.severity || "?";
+        const body = draft.body || "";
+        const findingItems = findings.map(f => `<li>${escapeHtml(f.claim || JSON.stringify(f))}</li>`).join("");
+        return `
+          <article class="card" id="card-${item.thread_id}">
+            <h2>${escapeHtml(subject)}</h2>
+            <div>
+              <span class="badge">${escapeHtml(category)}</span>
+              <span class="badge">${escapeHtml(severity)}</span>
+              <span class="badge">thread ${escapeHtml(item.thread_id.slice(0, 8))}…</span>
+            </div>
+            <ul class="findings">${findingItems || "<li>No findings recorded.</li>"}</ul>
+            <label>Draft body</label>
+            <textarea id="body-${item.thread_id}">${escapeHtml(body)}</textarea>
+            <div class="actions">
+              <button class="approve" data-action="approve" data-thread="${item.thread_id}">Approve</button>
+              <button class="edit" data-action="edit" data-thread="${item.thread_id}">Save &amp; Approve as Edit</button>
+              <button class="reject" data-action="reject" data-thread="${item.thread_id}">Reject</button>
+            </div>
+            <p class="status" id="status-${item.thread_id}"></p>
+          </article>`;
+      }).join("");
+    }
+
+    async function refreshPending() {
+      try {
+        const response = await fetch("/pending");
+        const items = await response.json();
+        renderPending(items);
+      } catch (err) {
+        document.getElementById("pending-container").innerHTML =
+          `<p class="error">Failed to load pending drafts: ${escapeHtml(err)}</p>`;
+      }
+    }
+
+    async function parseErrorDetail(response) {
+      const text = await response.text();
+      try {
+        const body = JSON.parse(text);
+        return body.detail || text;
+      } catch (_) {
+        return text;
+      }
+    }
+
+    function setCardBusy(threadId, busy, message) {
+      const card = document.getElementById(`card-${threadId}`);
+      if (!card) return;
+      card.querySelectorAll("button").forEach(btn => { btn.disabled = busy; });
+      const status = document.getElementById(`status-${threadId}`);
+      if (status) status.textContent = message || "";
+    }
+
+    async function submitDecision(threadId, action) {
+      if (inFlight.has(threadId)) return;
+      inFlight.add(threadId);
+      setCardBusy(threadId, true, "Submitting…");
+
+      const textarea = document.getElementById(`body-${threadId}`);
+      const payload = { action };
+      if (action === "edit") {
+        payload.edited_body = textarea ? textarea.value : "";
+      }
+
+      try {
+        const response = await fetch(`/approve/${threadId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.status === 409) {
+          const detail = await parseErrorDetail(response);
+          await refreshPending();
+          if (detail === "Already processed") {
+            return;
+          }
+          setCardBusy(threadId, false, detail);
+          return;
+        }
+
+        if (!response.ok) {
+          const detail = await parseErrorDetail(response);
+          alert(`Approval failed: ${detail}`);
+          setCardBusy(threadId, false, "");
+          return;
+        }
+
+        const card = document.getElementById(`card-${threadId}`);
+        if (card) card.remove();
+        if (!document.querySelector(".card")) {
+          document.getElementById("pending-container").innerHTML =
+            '<p class="empty">No drafts awaiting approval.</p>';
+        }
+      } catch (err) {
+        alert(`Approval failed: ${err}`);
+        setCardBusy(threadId, false, "");
+      } finally {
+        inFlight.delete(threadId);
+      }
+    }
+
+    document.getElementById("pending-container").addEventListener("click", event => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      submitDecision(button.dataset.thread, button.dataset.action);
+    });
+
+    document.body.addEventListener("htmx:afterRequest", refreshPending);
+    setInterval(refreshPending, 5000);
+    refreshPending();
+  </script>
+</body>
+</html>

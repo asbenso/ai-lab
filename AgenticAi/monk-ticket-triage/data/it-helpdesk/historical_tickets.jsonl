@@ -1,0 +1,4 @@
+{"ticket_id": "IT-2201", "user_id": "alex@example.com", "subject": "VPN disconnects every hour", "body": "Remote VPN drops connection roughly every 60 minutes.", "received_at": "2026-06-10T11:00:00Z"}
+{"ticket_id": "IT-2244", "user_id": "alex@example.com", "subject": "Cannot reach internal wiki over VPN", "body": "Split tunnel may be blocking wiki.corp.local.", "received_at": "2026-06-18T09:30:00Z"}
+{"ticket_id": "IT-2301", "user_id": "alex@example.com", "subject": "Cannot log in to VPN", "body": "VPN client hangs on connecting since this morning.", "received_at": "2026-06-24T08:10:00Z"}
+{"ticket_id": "IT-2188", "user_id": "jamie.k@example.com", "subject": "Laptop dock USB ports dead", "body": "Thunderbolt dock stopped detecting peripherals.", "received_at": "2026-06-05T14:22:00Z"}

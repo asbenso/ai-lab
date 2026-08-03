@@ -1,0 +1,24 @@
+{
+  "vpn-gateway": {
+    "connection_errors": {
+      "current": 42,
+      "avg": 5,
+      "p95": 38,
+      "trend": "rising"
+    },
+    "active_tunnels": {
+      "current": 812,
+      "avg": 920,
+      "p95": 980,
+      "trend": "falling"
+    }
+  },
+  "ldap-service": {
+    "bind_latency_ms": {
+      "current": 95,
+      "avg": 80,
+      "p95": 120,
+      "trend": "stable"
+    }
+  }
+}

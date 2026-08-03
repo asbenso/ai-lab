@@ -1,0 +1,15 @@
+{"question": "How do I rotate AWS IAM access keys without downtime?", "expected_sections": ["rotate", "access key", "deactivate"], "min_citations": 2}
+{"question": "What changed in Kubernetes 1.30 that matters for a production cluster?", "expected_sections": ["kubernetes", "upgrade", "deprecation"], "min_citations": 2}
+{"question": "What are the main differences between Bedrock Knowledge Bases and Vertex AI Search for RAG?", "expected_sections": ["bedrock", "vertex", "retrieval"], "min_citations": 2}
+{"question": "Compare API data retention policies for OpenAI, Anthropic, and Google.", "expected_sections": ["openai", "anthropic", "google", "retention"], "min_citations": 3}
+{"question": "What is zero trust architecture and which core principles should we adopt first?", "expected_sections": ["zero trust", "identity", "least privilege"], "min_citations": 2}
+{"question": "When should we use pgvector in Postgres versus a managed vector DB like Pinecone?", "expected_sections": ["pgvector", "pinecone", "latency"], "min_citations": 2}
+{"question": "Summarize Apple's revenue trends across its last three reported quarters.", "expected_sections": ["revenue", "quarter", "services"], "min_citations": 3}
+{"question": "How do rising interest rates typically affect investment-grade corporate bond yields?", "expected_sections": ["interest rate", "yield", "corporate bond"], "min_citations": 2}
+{"question": "What are the key disclosure sections investors review in a US 10-K filing?", "expected_sections": ["10-k", "risk factors", "md&a"], "min_citations": 2}
+{"question": "What rights does GDPR grant individuals for data erasure and when can companies refuse?", "expected_sections": ["gdpr", "erasure", "legitimate interest"], "min_citations": 2}
+{"question": "What are the compliance risks of using AGPL-licensed code in a commercial SaaS product?", "expected_sections": ["agpl", "copyleft", "distribution"], "min_citations": 2}
+{"question": "What is the EU AI Act high-risk classification and when do obligations apply?", "expected_sections": ["ai act", "high-risk", "conformity"], "min_citations": 2}
+{"question": "What major AI model releases did OpenAI announce in the past year?", "expected_sections": ["openai", "model", "release"], "min_citations": 2}
+{"question": "How do mRNA vaccines train the immune system compared with traditional vaccines?", "expected_sections": ["mrna", "immune", "antibod"], "min_citations": 2}
+{"question": "What are climate tipping points and which ones are most relevant to policy planning?", "expected_sections": ["tipping point", "arctic", "carbon"], "min_citations": 2}

@@ -1,0 +1,24 @@
+{
+  "api-gateway": {
+    "error_rate": {
+      "current": 0.38,
+      "avg": 0.02,
+      "p95": 0.12,
+      "trend": "rising"
+    },
+    "p95_latency_ms": {
+      "current": 8200,
+      "avg": 240,
+      "p95": 4100,
+      "trend": "rising"
+    }
+  },
+  "api-core": {
+    "db_pool_utilization": {
+      "current": 1.0,
+      "avg": 0.45,
+      "p95": 0.82,
+      "trend": "rising"
+    }
+  }
+}

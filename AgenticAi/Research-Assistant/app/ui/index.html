@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Research Assistant - Monk Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css?v=3" />
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10/dist/ext/sse.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <img
+        src="/static/logo.png"
+        alt="Monk Technologies"
+        class="logo"
+        onerror="this.style.display='none'"
+      />
+      <h1>AI Research Assistant</h1>
+    </header>
+
+    <main class="container">
+      <section class="card prompt-card">
+        <label for="question">Ask a research question</label>
+        <textarea
+          id="question"
+          rows="3"
+          placeholder="e.g. How do I rotate IAM access keys on AWS?"
+        ></textarea>
+        <div class="prompt-actions">
+          <button id="research-btn" type="button">Research</button>
+          <span id="status" class="status"></span>
+        </div>
+      </section>
+
+      <section class="panes">
+        <article class="card pane">
+          <header class="pane-header">
+            <span class="dot dot-orange"></span>
+            <h2>Progress</h2>
+            <span id="phase" class="phase-badge">Idle</span>
+          </header>
+          <ol id="progress" class="progress-list"></ol>
+        </article>
+
+        <article class="card pane">
+          <header class="pane-header">
+            <span class="dot dot-pink"></span>
+            <h2>Report</h2>
+          </header>
+          <div id="report" class="report markdown-body">
+            <p class="placeholder">The final report will appear here.</p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const btn = document.getElementById("research-btn");
+        const questionEl = document.getElementById("question");
+        const statusEl = document.getElementById("status");
+        const phaseEl = document.getElementById("phase");
+        const progressEl = document.getElementById("progress");
+        const reportEl = document.getElementById("report");
+
+        let activeSource = null;
+        let lastStepLogLen = 0;
+        const GRAPH_NODES = new Set([
+          "recall",
+          "planner",
+          "researcher",
+          "writer",
+          "guard",
+          "extract",
+        ]);
+        const seenSteps = new Set();
+
+        function getUserId() {
+          const key = "monk-research-user-id";
+          let userId = localStorage.getItem(key);
+          if (!userId) {
+            userId = crypto.randomUUID();
+            localStorage.setItem(key, userId);
+          }
+          return userId;
+        }
+
+        function setStatus(text, tone = "info") {
+          statusEl.textContent = text;
+          statusEl.dataset.tone = tone;
+        }
+
+        function setPhase(text) {
+          phaseEl.textContent = text;
+        }
+
+        function resetUI() {
+          progressEl.innerHTML = "";
+          seenSteps.clear();
+          lastStepLogLen = 0;
+          setPhase("Starting");
+          reportEl.innerHTML =
+            '<p class="placeholder">The final report will appear here.</p>';
+        }
+
+        function graphNodeName(payload) {
+          return payload.metadata?.langgraph_node || payload.name || "";
+        }
+
+        function appendStep(text, tone = "") {
+          if (!text || seenSteps.has(text)) return;
+          seenSteps.add(text);
+          const li = document.createElement("li");
+          li.textContent = text;
+          if (tone) li.dataset.tone = tone;
+          progressEl.appendChild(li);
+          progressEl.scrollTop = progressEl.scrollHeight;
+        }
+
+        function appendSection(title, lines, tone = "detail") {
+          const key = `${title}::${lines.join("|")}`;
+          if (seenSteps.has(key)) return;
+          seenSteps.add(key);
+
+          const li = document.createElement("li");
+          li.className = "progress-section";
+          li.dataset.tone = tone;
+
+          const heading = document.createElement("div");
+          heading.className = "progress-section-title";
+          heading.textContent = title;
+          li.appendChild(heading);
+
+          const list = document.createElement("ul");
+          list.className = "progress-details";
+          lines.forEach((line) => {
+            const item = document.createElement("li");
+            item.textContent = line;
+            list.appendChild(item);
+          });
+          li.appendChild(list);
+          progressEl.appendChild(li);
+          progressEl.scrollTop = progressEl.scrollHeight;
+        }
+
+        function appendNewStepLines(log) {
+          if (!Array.isArray(log)) return;
+          for (let i = lastStepLogLen; i < log.length; i += 1) {
+            const line = log[i];
+            let tone = "";
+            if (line.startsWith("Recall")) tone = "memory";
+            else if (line.startsWith("Planner")) tone = "node";
+            else if (line.startsWith("[sub")) tone = "tool";
+            else if (line.startsWith("Researcher")) tone = "node";
+            else if (line.startsWith("Writer")) tone = "node";
+            else if (line.startsWith("Guard")) tone = "node";
+            else if (line.startsWith("Extract")) tone = "memory";
+            appendStep(line, tone);
+          }
+          lastStepLogLen = log.length;
+        }
+
+        function summarizeToolInput(toolName, input) {
+          if (!input || typeof input !== "object") return "";
+          if (toolName === "web_search") {
+            return `'${String(input.query || "").slice(0, 100)}'`;
+          }
+          if (toolName === "fetch_url") {
+            return `'${String(input.url || "").slice(0, 100)}'`;
+          }
+          if (toolName === "search_local_docs") {
+            return `'${String(input.query || "").slice(0, 100)}'`;
+          }
+          if (toolName === "summarize") {
+            return `'${String(input.focus || input.text || "").slice(0, 100)}'`;
+          }
+          return JSON.stringify(input).slice(0, 100);
+        }
+
+        function summarizeToolOutput(toolName, output) {
+          if (output == null) return "done";
+          if (Array.isArray(output)) {
+            if (output.length === 0) return "0 results";
+            const first = output[0] || {};
+            const label =
+              first.title || first.url || first.claim || first.text || first.content || "";
+            const preview = String(label).slice(0, 90);
+            return `${output.length} result(s) · ${preview}${String(label).length > 90 ? "…" : ""}`;
+          }
+          if (typeof output === "string") {
+            const trimmed = output.trim();
+            if (!trimmed) return "empty response";
+            return `${trimmed.length} chars · ${trimmed.slice(0, 90)}${trimmed.length > 90 ? "…" : ""}`;
+          }
+          if (typeof output === "object") {
+            return JSON.stringify(output).slice(0, 100);
+          }
+          return String(output).slice(0, 100);
+        }
+
+        function appendRecalledMemories(memories) {
+          if (!Array.isArray(memories) || memories.length === 0) {
+            appendSection("Semantic recall", ["No prior memories matched this question."], "muted");
+            return;
+          }
+          const lines = memories.map((item) => {
+            const value = item.value || {};
+            const kind = value.kind || "note";
+            const content = value.content || JSON.stringify(value);
+            const score =
+              typeof item.score === "number" ? ` · score ${item.score.toFixed(2)}` : "";
+            return `(${kind}) ${content}${score}`;
+          });
+          appendSection(`Recalled ${memories.length} memories`, lines, "memory");
+        }
+
+        function appendPlannerDetails(subQuestions) {
+          if (!Array.isArray(subQuestions) || subQuestions.length === 0) return;
+          const lines = subQuestions.map((sq, index) => {
+            const text = sq.text || sq.question || JSON.stringify(sq);
+            const source = sq.source || "both";
+            return `${index + 1}. [${source}] ${text}`;
+          });
+          appendSection(`Plan · ${subQuestions.length} sub-questions`, lines, "node");
+        }
+
+        function appendFindingsDetails(findings) {
+          if (!Array.isArray(findings) || findings.length === 0) {
+            appendSection("Research findings", ["No verified findings with source URLs."], "muted");
+            return;
+          }
+          const lines = findings.map((finding, index) => {
+            const claim = finding.claim || "(no claim)";
+            const url = finding.evidence_url || "(no url)";
+            const evidence = (finding.evidence_text || "").trim();
+            const sub = typeof finding.sub_question_index === "number"
+              ? `sub-question ${finding.sub_question_index + 1}\n`
+              : "";
+            let block = `${index + 1}. ${sub}Claim: ${claim}\nSource: ${url}`;
+            if (evidence) {
+              const snippet = evidence.length > 220 ? `${evidence.slice(0, 217)}…` : evidence;
+              block += `\nEvidence: ${snippet}`;
+            }
+            return block;
+          });
+          appendSection(`Findings · ${findings.length} verified`, lines, "detail");
+        }
+
+        function appendWriterDetails(out) {
+          const report = out.report || "";
+          const lines = [
+            `Report length: ${report.length} characters`,
+            report.includes("## Sources") ? "Sources section present" : "No Sources section detected",
+          ];
+          appendSection("Report draft", lines, "node");
+        }
+
+        function appendExtractDetails(out, stepLog) {
+          const lines = [];
+          const extractLines = (stepLog || []).filter((line) => line.startsWith("Extract:"));
+          extractLines.forEach((line) => lines.push(line.replace(/^Extract:\s*/, "")));
+          if (lines.length === 0) {
+            lines.push("No new memory saved this run.");
+          }
+          appendSection("Memory extract", lines, "memory");
+        }
+
+        function renderReport(markdown) {
+          if (!markdown) return;
+          reportEl.innerHTML = marked.parse(markdown);
+        }
+
+        function handleNodeEnd(node, out) {
+          appendNewStepLines(out.step_log);
+
+          if (node === "recall") {
+            appendRecalledMemories(out.memories);
+          }
+          if (node === "planner") {
+            appendPlannerDetails(out.sub_questions);
+          }
+          if (node === "researcher") {
+            appendFindingsDetails(out.findings);
+          }
+          if (node === "writer") {
+            appendWriterDetails(out);
+          }
+          if (node === "extract") {
+            appendExtractDetails(out, out.step_log);
+          }
+          if (out.report) {
+            renderReport(out.report);
+          }
+        }
+
+        function handleProgressDetail(data) {
+          const node = data.node;
+          const out = data.output || {};
+          if (!GRAPH_NODES.has(node)) return;
+          setPhase(node);
+          appendStep(`✓ ${node} complete`, "node");
+          handleNodeEnd(node, out);
+        }
+
+        function handleEvent(payload) {
+          const kind = payload.event || "";
+          const data = payload.data || {};
+          const node = graphNodeName(payload);
+
+          if (kind === "progress_detail") {
+            handleProgressDetail(data);
+            return;
+          }
+
+          if (kind === "on_chain_start" && GRAPH_NODES.has(node)) {
+            setPhase(node);
+            appendStep(`→ ${node}`, "node");
+            return;
+          }
+
+          if (kind === "on_chain_end" && GRAPH_NODES.has(node)) {
+            return;
+          }
+
+          if (kind === "on_chat_model_start") {
+            const modelNode = payload.metadata?.langgraph_node;
+            if (GRAPH_NODES.has(modelNode)) {
+              appendStep(`  … ${modelNode} calling model`, "detail");
+            }
+            return;
+          }
+
+          if (kind === "on_tool_start") {
+            const toolNode = payload.metadata?.langgraph_node;
+            if (toolNode !== "researcher") return;
+            const input = data.input || {};
+            appendStep(
+              `  ↳ ${payload.name}(${summarizeToolInput(payload.name, input)})`,
+              "tool"
+            );
+            return;
+          }
+
+          if (kind === "on_tool_end") {
+            const toolNode = payload.metadata?.langgraph_node;
+            if (toolNode !== "researcher") return;
+            const summary = summarizeToolOutput(payload.name, data.output);
+            appendStep(`  ✓ ${payload.name}: ${summary}`, "tool");
+            return;
+          }
+
+          if (kind === "error") {
+            appendStep(`ERROR: ${data.message || "research failed"}`, "error");
+            setStatus("Failed", "error");
+            setPhase("Failed");
+          }
+        }
+
+        function startResearch() {
+          const question = questionEl.value.trim();
+          if (!question) {
+            setStatus("Type a question first.", "warn");
+            return;
+          }
+          if (activeSource) {
+            activeSource.close();
+            activeSource = null;
+          }
+          resetUI();
+          setStatus("Submitting...", "info");
+          btn.disabled = true;
+
+          fetch("/research", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question, user_id: getUserId() }),
+          })
+            .then((r) => {
+              if (!r.ok) throw new Error(`HTTP ${r.status}`);
+              return r.json();
+            })
+            .then(({ thread_id }) => {
+              setStatus(`Streaming thread ${thread_id.slice(0, 8)}...`, "info");
+              activeSource = new EventSource(`/stream/${thread_id}`);
+              activeSource.onmessage = (ev) => {
+                try {
+                  handleEvent(JSON.parse(ev.data));
+                } catch (err) {
+                  console.warn("bad event", err, ev.data);
+                }
+              };
+              activeSource.addEventListener("done", () => {
+                setStatus("Done.", "ok");
+                setPhase("Done");
+                btn.disabled = false;
+                activeSource.close();
+                activeSource = null;
+              });
+              activeSource.onerror = () => {
+                setStatus("Stream interrupted.", "error");
+                setPhase("Interrupted");
+                btn.disabled = false;
+                if (activeSource) {
+                  activeSource.close();
+                  activeSource = null;
+                }
+              };
+            })
+            .catch((err) => {
+              setStatus(`Error: ${err.message}`, "error");
+              setPhase("Error");
+              btn.disabled = false;
+            });
+        }
+
+        btn.addEventListener("click", startResearch);
+        questionEl.addEventListener("keydown", (ev) => {
+          if ((ev.metaKey || ev.ctrlKey) && ev.key === "Enter") {
+            ev.preventDefault();
+            startResearch();
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+[project]
+name = "monk-ticket-triage"
+version = "0.1.0"
+description = "Monk Technologies Project 2 - Autonomous Ticket Triage Agent"
+requires-python = ">=3.11,<3.13"
+
+dependencies = [
+    "langchain>=0.3,<0.4",
+    "langchain-core>=0.3,<0.4",
+    "langchain-aws>=0.2.10",
+    "langgraph>=0.2.50,<0.3",
+    "langgraph-checkpoint-sqlite>=2.0.1",
+    "langgraph-checkpoint-postgres>=2.0.7",
+    "aiosqlite>=0.20.0",
+    "python-dotenv>=1.0.1",
+    "pyyaml>=6.0.2",
+    "pydantic>=2.9.0",
+    "psycopg[binary]>=3.2.3",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "bedrock-agentcore>=1.18.0",
+    "bedrock-agentcore-starter-toolkit>=0.3.10",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.1",
+]

@@ -1,0 +1,142 @@
+---
+description: Project 2 - Autonomous Ticket Triage Agent - supervisor + Triager / Investigator / Responder + HITL
+globs:
+  - "app/agents/**/*.py"
+  - "app/memory/**/*.py"
+  - "app/graph.py"
+  - "app/hitl.py"
+  - "app/tools/**/*.py"
+  - "deploy/**/*.py"
+  - "evals/**/*.py"
+  - "security/**/*.py"
+---
+
+# Project 2 - Autonomous Ticket Triage Agent rules
+
+Apply when working anywhere inside the `monk-ticket-triage` repo.
+
+## The shape of this agent
+
+Multi-agent system with a small Supervisor + three workers + a HITL gate + a Send node.
+
+```
+START -> supervisor
+            -> triager     -> supervisor
+            -> investigator -> supervisor
+            -> responder   -> supervisor
+            -> hitl        -> supervisor
+            -> send        -> supervisor
+            -> END
+```
+
+State:
+
+```python
+class TicketState(TypedDict):
+    ticket_id: str
+    raw: dict                    # {"subject": str, "body": str, "sender": str, ...}
+    domain: Literal["support", "it-helpdesk", "oncall"]
+    classification: dict | None  # {"category": str, "confidence": float, "rationale": str}
+    severity: Literal["P1", "P2", "P3", "P4"] | None
+    findings: list[dict]
+    draft: dict | None           # {"subject": str, "body": str, "recommended_action": ..., "confidence": ..., "risk_flags": [...]}
+    approval: Literal["pending", "approved", "edited", "rejected"]
+    sent: bool
+    step_log: list[str]
+```
+
+## Supervisor rules
+
+- Pure routing logic, no LLM call. Decide based on state:
+  - `classification is None` -> `"triager"`.
+  - `findings == []` -> `"investigator"`.
+  - `draft is None` -> `"responder"`.
+  - `approval == "pending"` -> `"hitl"`.
+  - `approval in ("approved", "edited")` and not `sent` -> `"send"`.
+  - otherwise -> `"END"`.
+- Implementation returns `{"next": "..."}`. The graph uses `add_conditional_edges("supervisor", lambda s: s["next"], {...})`.
+
+## Triager rules
+
+- Output **always** structured via `with_structured_output(TriageOutput)`.
+- `TriageOutput`: `category`, `severity (Literal P1-P4)`, `confidence (0..1)`, `rationale`.
+- Validate that `category` is in the loaded taxonomy. On failure -> `category="unknown"`, force `severity="P3"`.
+- Optionally inject 3 episodic examples from `app/memory/episodic.py`.
+
+## Investigator rules
+
+- Has access to four tools: `query_logs`, `query_metrics`, `search_runbooks`, `get_ticket_history`.
+- Hard budget: **8 tool calls** per ticket.
+- After tools, force one final structured-output call that emits a JSON list of findings, each: `{"claim": str, "source": str, "tool": str}`.
+- The Investigator never sends emails, never modifies state outside `findings` and `step_log`.
+
+## Responder rules
+
+- Pulls procedural memory (style prompt) via `get_responder_prompt(state["domain"])`.
+- Pulls 3 episodic examples via `similar_past_cases(...)`.
+- Pulls user-specific semantic memory via `recall_user(state["raw"]["sender"], k=3)`.
+- Output structured via `ResponderOutput`: `subject`, `body`, `recommended_action ("send" or "escalate")`, `confidence`, `risk_flags`.
+- **Forced escalation** when any of the following:
+  - `confidence < 0.6`
+  - body contains: refund, credit, guarantee, tomorrow, by EOD, by end of day.
+  - any email/phone/credit-card regex match in the body.
+- These triggers are added to `risk_flags`.
+
+## HITL rules
+
+- Implemented in `app/hitl.py` using `langgraph.types.interrupt(...)`.
+- `interrupt` payload includes everything a human needs to decide: `draft`, `classification`, `severity`, `findings`, `raw`.
+- Resume payload schema: `{"action": "approve"|"edit"|"reject", "edited_body": str | None}`.
+- On `edit`, the body in `draft` is replaced; subject is NOT editable (one decision, not two).
+- On `reject`, no send happens and the run ends; `step_log` records the reason if provided.
+
+## Send rules
+
+- `send_response` is the only side-effectful tool. It logs to a file in dev, posts to a webhook in prod.
+- **The Send node refuses to run unless `approval in ("approved", "edited")` and `sent is False`.** Guard the precondition with an `assert`-equivalent.
+
+## Memory rules
+
+- `app/memory/semantic.py` - LangGraph Store. Namespace per user. Stores preferences and stable facts.
+- `app/memory/episodic.py` - pgvector over `past_resolutions` table. Read-only at runtime; writes happen in an offline job.
+- `app/memory/procedural.py` - versioned prompt files on disk under `data/prompts/responder_{domain}.json`. The Responder always reads `version="latest"`.
+
+## Tooling rules
+
+- All Investigator tools have **mock implementations** that read from `data/{domain}/mock_*.json`. We never call real ops APIs in class.
+- Mock data is committed and deterministic so evals are stable.
+
+## Deployment
+
+- Two targets: **Bedrock AgentCore** and **Vertex AI Agent Engine**. Same code; different entrypoints.
+- AgentCore: `deploy/agentcore_entrypoint.py` + `deploy/deploy_agentcore.sh`.
+- Vertex Agent Engine: `deploy/vertex_engine_deploy.py` + `deploy/deploy_vertex_engine.sh`.
+- `build_graph_with_backends(saver, store)` lets the entrypoints inject Postgres backings.
+
+## Evals
+
+- Four scripts: `triager_eval.py`, `investigator_eval.py`, `responder_eval.py`, `e2e_eval.py`.
+- Triager: programmatic exact-match + confusion matrix.
+- Investigator: keyword match + LLM-as-judge.
+- Responder: escalation precision/recall + LLM-as-judge quality.
+- E2E: full pipeline pass-rate against ground-truth labels.
+- All upload to LangSmith with fixed experiment names so we can compare runs across days.
+
+## Security
+
+- `security/attacks.jsonl` ships with 20 baseline attacks. Learners may add a 21st.
+- `security/injection_eval.py` runs each attack and verifies the expected outcome (`blocked` or `escalated`).
+- Acceptable pass rate: 19/20 = 95% on the baseline set. Failures must be logged with the actual outcome.
+
+## Common Cursor pitfalls to watch for in this project
+
+- Cursor may try to route directly from a worker to the next worker. Force it through the supervisor.
+- Cursor may forget that `interrupt(...)` is only valid inside a node function during a graph run. Place it inside `hitl_node`, not at module scope.
+- Cursor may collapse the three memory types into one. Insist on three distinct files.
+- Cursor may call `send_response` from inside `responder_node`. Forbid it; only `send_node` sends.
+
+## Stretch features mapping
+
+- "Slack notify on P1" -> add `notify_slack` tool, call from `send_node` after a successful send when `severity == "P1"`.
+- "Auto-prompt-tuning" -> `app/cron/refine_responder_prompt.py` reads HITL outcomes and proposes a v+1 of the procedural prompt. Manual approval.
+- "Ops dashboard" -> `app/ops/dashboard.py` with Streamlit. Read-only, no auth in dev.

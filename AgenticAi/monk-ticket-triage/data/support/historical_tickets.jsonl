@@ -1,0 +1,5 @@
+{"ticket_id": "TKT-0998", "user_id": "priya.s@example.com", "subject": "Authenticator codes not working", "body": "Codes from Google Authenticator keep failing.", "received_at": "2026-05-08T14:10:00Z"}
+{"ticket_id": "TKT-1001", "user_id": "priya.s@example.com", "subject": "Cannot log in - MFA loop", "body": "Every MFA code sends me back to the login page.", "received_at": "2026-05-10T09:14:22Z"}
+{"ticket_id": "TKT-0995", "user_id": "marc.w@example.com", "subject": "Cancel Pro plan", "body": "Please cancel my subscription effective April 28.", "received_at": "2026-04-28T17:55:00Z"}
+{"ticket_id": "TKT-1002", "user_id": "marc.w@example.com", "subject": "Where is my refund?", "body": "I cancelled on April 28 but was still charged $79.", "received_at": "2026-05-10T10:01:11Z"}
+{"ticket_id": "TKT-1004", "user_id": "lisa.f@example.com", "subject": "Bug: report export hangs at 50%", "body": "Export PDF stalls at 50% for 5+ minutes.", "received_at": "2026-05-10T13:22:09Z"}

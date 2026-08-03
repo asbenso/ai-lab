@@ -1,0 +1,28 @@
+# Env
+.env
+.env.deployed
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Caches
+.ruff_cache/
+.pytest_cache/
+
+# Databases
+checkpoints.sqlite
+*.db
+*.sqlite
+*.sqlite3
+
+# Local data
+*.log
+.langsmith/
+
+# IDE
+.vscode/
+.idea/

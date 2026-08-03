@@ -1,0 +1,23 @@
+# On-call alert taxonomy
+
+categories:
+  - name: service_outage
+    description: Complete or partial service unavailability affecting users.
+  - name: latency
+    description: Elevated latency, timeouts, or degraded response times.
+  - name: error_spike
+    description: Sudden increase in 5xx/4xx errors or failed jobs.
+  - name: deployment
+    description: Failed rollouts, bad releases, or rollback requests.
+  - name: capacity
+    description: CPU, memory, disk, or queue saturation alerts.
+  - name: security
+    description: Suspicious traffic, auth anomalies, or credential leaks.
+  - name: other
+    description: Anything not covered above.
+
+severities:
+  - P1
+  - P2
+  - P3
+  - P4

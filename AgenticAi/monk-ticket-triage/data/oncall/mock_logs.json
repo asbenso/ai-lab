@@ -1,0 +1,14 @@
+{
+  "api-gateway": [
+    {"timestamp": "2026-06-24T02:14:05Z", "level": "ERROR", "message": "upstream=api-core status=503 latency_ms=30012 route=/v1/orders"},
+    {"timestamp": "2026-06-24T02:14:06Z", "level": "ERROR", "message": "upstream=api-core status=503 latency_ms=30008 route=/v1/orders"},
+    {"timestamp": "2026-06-24T02:14:10Z", "level": "WARN", "message": "circuit_breaker=api-core state=open failure_rate=0.62"}
+  ],
+  "api-core": [
+    {"timestamp": "2026-06-24T02:13:50Z", "level": "ERROR", "message": "db_pool exhausted waiting=128 max=100"},
+    {"timestamp": "2026-06-24T02:13:55Z", "level": "ERROR", "message": "health_check failed component=postgres latency_ms=5001"}
+  ],
+  "deploy-bot": [
+    {"timestamp": "2026-06-24T01:58:00Z", "level": "INFO", "message": "rollout api-core v2.14.3 started by=ci-pipeline"}
+  ]
+}

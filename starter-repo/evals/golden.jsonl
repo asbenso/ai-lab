@@ -1,5 +1,0 @@
-{"question": "Compare the data retention policies of OpenAI, Anthropic, and Google for their API products.", "expected_sections": ["openai", "anthropic", "google"], "min_citations": 3}
-{"question": "What changed in Kubernetes 1.30 that I should know about for our production cluster?", "expected_sections": ["dynamic resource allocation", "appArmor"], "min_citations": 2}
-{"question": "How do I rotate AWS IAM access keys without downtime?", "expected_sections": ["rotate", "deactivate"], "min_citations": 2}
-{"question": "What are the main differences between Bedrock Knowledge Bases and Vertex AI Search for RAG?", "expected_sections": ["bedrock", "vertex"], "min_citations": 2}
-{"question": "Summarize the last three quarterly revenue results for Apple Inc.", "expected_sections": ["quarter", "revenue"], "min_citations": 3}

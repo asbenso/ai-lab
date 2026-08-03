@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: monk-pgvector
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: monk
+    ports:
+      # Host-side 5433 to avoid clashing with a system/Homebrew Postgres on 5432.
+      - "5433:5432"
+    volumes:
+      - monk-pgvector-data:/var/lib/postgresql/data
+      - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d monk"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  monk-pgvector-data:

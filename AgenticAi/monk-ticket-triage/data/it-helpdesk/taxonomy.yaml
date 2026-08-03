@@ -1,0 +1,23 @@
+# IT helpdesk ticket taxonomy
+
+categories:
+  - name: vpn_access
+    description: VPN client failures, remote access, split tunnel issues.
+  - name: password_reset
+    description: Locked accounts, expired passwords, MFA enrollment problems.
+  - name: hardware
+    description: Laptop, dock, monitor, keyboard, or peripheral failures.
+  - name: software_install
+    description: Application installs, updates, licensing, or crashes.
+  - name: network
+    description: Wi-Fi, DNS, latency, or office network connectivity issues.
+  - name: email
+    description: Outlook, Gmail, distribution lists, or calendar problems.
+  - name: other
+    description: Anything not covered above.
+
+severities:
+  - P1
+  - P2
+  - P3
+  - P4

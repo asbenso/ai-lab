@@ -1,0 +1,46 @@
+# Env
+.env
+.env.deployed
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.python-version
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.basedpyright/
+
+# Databases
+checkpoints.sqlite
+*.db
+*.sqlite
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Cursor (keep rules, ignore local cache)
+.cursor/cache/
+
+# Local data
+*.log
+.langsmith/
+
+# Deployment artifacts
+.gcloudignore

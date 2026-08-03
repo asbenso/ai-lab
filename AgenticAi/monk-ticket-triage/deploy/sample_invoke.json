@@ -1,0 +1,18 @@
+{
+  "ticket_id": "TCK-1001",
+  "raw": {
+    "subject": "Cannot log in to VPN",
+    "body": "VPN client hangs on connecting since this morning.",
+    "sender": "alex@example.com",
+    "attachments": []
+  },
+  "domain": "it-helpdesk",
+  "classification": null,
+  "severity": null,
+  "findings": [],
+  "draft": null,
+  "approval": "pending",
+  "sent": false,
+  "step_log": [],
+  "next": ""
+}

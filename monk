@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Run Monk bootcamp commands from the workspace root.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "$ROOT/AiProjects/AgenticAi/monk" "$@"

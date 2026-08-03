@@ -1,0 +1,3 @@
+{"ticket_id": "INC-4410", "user_id": "pager@monk.corp", "subject": "Elevated 503s on /v1/orders", "body": "Error budget burn > 50% in 10 minutes.", "received_at": "2026-06-20T03:12:00Z"}
+{"ticket_id": "INC-4422", "user_id": "pager@monk.corp", "subject": "api-core deploy regression", "body": "Latency doubled after v2.14.2 rollout.", "received_at": "2026-06-22T18:40:00Z"}
+{"ticket_id": "INC-4431", "user_id": "pager@monk.corp", "subject": "Service outage - api-gateway 503 storm", "body": "Circuit breaker opened for api-core upstream.", "received_at": "2026-06-24T02:15:00Z"}

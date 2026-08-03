@@ -1,0 +1,14 @@
+{
+  "vpn-gateway": [
+    {"timestamp": "2026-06-24T08:12:01Z", "level": "WARN", "message": "user=alex@example.com tunnel_connect stalled phase=handshake duration=45s"},
+    {"timestamp": "2026-06-24T08:12:44Z", "level": "ERROR", "message": "user=alex@example.com tunnel_connect failed reason=certificate_pin_mismatch"},
+    {"timestamp": "2026-06-24T08:13:02Z", "level": "WARN", "message": "user=alex@example.com retry_count=3 last_error=handshake_timeout"}
+  ],
+  "ldap-service": [
+    {"timestamp": "2026-06-24T07:55:00Z", "level": "INFO", "message": "bind_success user=alex@example.com"},
+    {"timestamp": "2026-06-24T08:00:00Z", "level": "INFO", "message": "group_sync completed groups=12"}
+  ],
+  "wifi-controller": [
+    {"timestamp": "2026-06-23T16:20:11Z", "level": "INFO", "message": "ap_floor3_12 clients=38 channel=36"}
+  ]
+}

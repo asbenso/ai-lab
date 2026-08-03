@@ -1,0 +1,32 @@
+{
+  "auth-service": {
+    "errors_per_min": {
+      "current": 18,
+      "avg": 2,
+      "p95": 12,
+      "trend": "rising"
+    },
+    "login_latency_ms": {
+      "current": 420,
+      "avg": 180,
+      "p95": 350,
+      "trend": "rising"
+    }
+  },
+  "billing-service": {
+    "refund_queue_depth": {
+      "current": 4,
+      "avg": 1,
+      "p95": 3,
+      "trend": "stable"
+    }
+  },
+  "reports-service": {
+    "export_timeout_rate": {
+      "current": 0.42,
+      "avg": 0.05,
+      "p95": 0.31,
+      "trend": "rising"
+    }
+  }
+}
