@@ -9,3 +9,6 @@ make tools
 ```
 
 See [AgenticAi/README.md](AgenticAi/README.md) for full details.
+
+---
+*Research Assistant · Ticket Triage Agent · Monk Technologies*
