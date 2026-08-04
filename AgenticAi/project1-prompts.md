@@ -1,6 +1,6 @@
-# Project 1 - AI Research Assistant - Cursor prompt library
+# Project 1 — AI Research Assistant — Cursor prompt library
 
-Every Cursor Composer prompt for Project 1, in the order they're issued in class.
+Every Cursor Composer prompt for Project 1, in the order they're issued.
 
 > **Convention used here**: each prompt is in a fenced blockquote. Paste verbatim into Cursor Composer (Cmd-I). When something is parameterised (`{like_this}`), substitute before sending.
 

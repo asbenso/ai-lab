@@ -1,6 +1,6 @@
-# Project 2 - Autonomous Ticket Triage Agent - Cursor prompt library
+# Project 2 — Autonomous Ticket Triage Agent — Cursor prompt library
 
-Every Cursor Composer prompt for Project 2, in the order they're issued in class.
+Every Cursor Composer prompt for Project 2, in the order they're issued.
 
 > **Session mapping**: Session 7 = Day 5 (memory + P2 skeleton). Session 8 = Day 6 H1 (Triager). Session 9 = Day 6 H2-H4 (Investigator, Responder, HITL). Session 10 = Day 7 (deploys). Session 11 = Day 8 H1-H2 (evals, security). Session 12 = Day 8 H3 (billing + demo). Prompt IDs like `Day 6 H1` are stable references.
 
