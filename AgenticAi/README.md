@@ -47,6 +47,16 @@ make ingest CORPUS=aws-docs
 - [project1-prompts.md](project1-prompts.md) — Project 1 (Research Assistant)
 - [project2-prompts.md](project2-prompts.md) — Project 2 (Ticket Triage)
 
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Agent framework | LangGraph |
+| Models | AWS Bedrock (gpt-oss-120b) · GCP Vertex AI (Gemini) |
+| Memory | pgvector (PostgreSQL) |
+| Tracing | LangSmith |
+| Deploy | Cloud Run · Bedrock AgentCore · Vertex Agent Engine |
+
 ## Make targets
 
 ```bash
