@@ -43,6 +43,14 @@ uv run python -m app.smoke
 
 If step 4 prints "All systems go" you are ready for Day 1.
 
+## Prerequisites
+
+- Python 3.11+
+- [uv](https://docs.astral.sh/uv/) — `pip install uv`
+- Docker (for local pgvector)
+- AWS CLI configured with Bedrock access
+- `gcloud` CLI authenticated with Vertex AI access
+
 ## Common make targets
 
 ```bash
