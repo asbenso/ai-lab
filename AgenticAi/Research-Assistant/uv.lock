@@ -1257,7 +1257,7 @@ wheels = [
 ]
 
 [[package]]
-name = "monk-bootcamp-starter"
+name = "monk-project-starter"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
