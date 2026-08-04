@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Monk Technologies - guided AWS setup for the project.
-# Run once before Day 1. Re-running is safe.
+# Monk Technologies - guided AWS setup script.
+# Run once before starting. Re-running is safe.
 
 set -euo pipefail
 

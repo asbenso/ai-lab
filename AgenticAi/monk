@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run Monk project commands from the AgenticAi directory.
+# Monk CLI — delegates make targets into Research-Assistant/.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT="$ROOT/Research-Assistant"
