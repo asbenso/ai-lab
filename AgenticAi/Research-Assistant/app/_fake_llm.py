@@ -1,10 +1,10 @@
 """Deterministic offline stand-in for any real chat model + embeddings.
 
-When `MONK_MODEL=fake` (and/or `MONK_EMBEDDINGS=fake`), the project routes
-through this module instead of Bedrock/Vertex. The point is to let the entire
-graph - planner / researcher / writer, plus tools, guardrails, evals and the
-HTMX UI - run end-to-end with zero cloud credentials, so we can dry-run the
-project offline. Real cloud models go through the normal `init_chat_model`
+When `MONK_MODEL=fake` (and/or `MONK_EMBEDDINGS=fake`), the graph routes
+through this module instead of Bedrock/Vertex. The purpose is to let the
+entire graph — planner / researcher / writer, plus tools, guardrails, evals,
+and the HTMX UI — run end-to-end with zero cloud credentials for local
+dry-runs. Real cloud models go through the normal `init_chat_model`
 path in `app/llm.py`.
 
 The fake model recognises a small number of "shapes" from the prompts in this

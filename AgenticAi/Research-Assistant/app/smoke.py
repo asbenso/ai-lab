@@ -3,7 +3,7 @@
 Verifies that this machine can:
 - Reach AWS Bedrock and call gpt-oss-120b (OpenAI's open-weight model hosted on Bedrock).
 - Reach GCP Vertex AI and call Gemini.
-- Connect to the local pgvector Postgres.
+- Connect to the local pgvector Postgres (port 5433).
 
 Run with: `uv run python -m app.smoke`
 """
